@@ -60,7 +60,6 @@ void SDK::OutputFile(const char* cOutputFileName, const char* cMsg)
 		if (file.is_open())
 		{
 			file << cMsg;
-			file.flush();
 			file.close();
 		}
 		

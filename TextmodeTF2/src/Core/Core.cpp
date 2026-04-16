@@ -156,13 +156,13 @@ int CCore::LoadEngine()
 		if (!G::CStaticPropMgr_UnserializeStaticPropsAddr)
 			G::CStaticPropMgr_UnserializeStaticPropsAddr = U::Memory.FindSignature("engine.dll", "40 57 48 81 EC E0 00 00 00 80 B9 98 00 00 00 00");
 		if (!G::S_PrecacheSoundAddr)
-			G::S_PrecacheSoundAddr = U::Memory.FindSignature("engine.dll", "4C 8B DC 49 89 5B 08 49 89 73 18 57 48 83 EC 50");
+			G::S_PrecacheSoundAddr = U::Memory.FindSignature("engine.dll", "4C 8B DC 49 89 5B ? 49 89 73 ? 57 48 83 EC ? 48 8B 05 ? ? ? ? 33 F6");
 		if (!G::CModelLoader_GetModelForNameAddr)
 			G::CModelLoader_GetModelForNameAddr = U::Memory.FindSignature("engine.dll", "44 89 44 24 18 53 48 83 EC 20 48 8B D9 E8 ?? ?? ?? ?? 4C 8D 44 24 40");
 		if (!G::CModelRender_DrawModelExecuteAddr)
 			G::CModelRender_DrawModelExecuteAddr = U::Memory.FindSignature("engine.dll", "4C 89 4C 24 20 48 89 4C 24 08 55 53 56 57 41 54 41 56 41 57 48 8D AC 24 D0 FD FF FF 48 81 EC 30 03 00 00 41 8B 70 40");
 		if (!G::CDebugOverlay_AddBoxOverlayAddr)
-			G::CDebugOverlay_AddBoxOverlayAddr = U::Memory.FindSignature("engine.dll", "48 89 74 24 18 4C 89 74 24 20 41 57 48 81 EC 80 00 00 00 48 8D 0D ? ? ? ? 49 8B F1 4D 8B F0 4C 8B FA E8 ? ? ? ? 84 C0");
+			G::CDebugOverlay_AddBoxOverlayAddr = U::Memory.FindSignature("engine.dll", "48 89 74 24 18 4C 89 74 24 20 41 57 48 81 EC 80 00 00 00 48 8D 0D ?? ?? ?? ?? 49 8B F1 4D 8B F0 4C 8B FA E8 ?? ?? ?? ?? 84 C0 0F 85 ?? ?? ?? ?? 48 89 9C 24 90 00 00 00 4C 8D 0D ?? ?? ?? ?? 0F 29 74 24 70 4C 8D 05 ?? ?? ?? ?? C7 44 24 28 01 00 00 00 48 8D 15 ?? ?? ?? ?? 48 8D 4C 24 40 48 89 BC 24 98 00 00 00 C7 44 24 20 61 02 00 00 E8 ?? ?? ?? ?? B9 58 00 00");
 		if (!G::CDebugOverlay_AddLineOverlayAddr)
 			G::CDebugOverlay_AddLineOverlayAddr = U::Memory.FindSignature("engine.dll", "4C 8B DC 53 55 56 57 41 56 48 81 EC 80 00 00 00 49 8D 43 30 0F 29 74 24 70 48 89 81 10 04 00 00 48 8D 69 10");
 
@@ -184,7 +184,7 @@ int CCore::LoadEngine()
 			U::Hooks.Initialize("CEngineSoundClient_EmitSoundInternal");
 
 		if (!G::R_DrawDecalsAllAddr)
-			G::R_DrawDecalsAllAddr = U::Memory.FindSignature("engine.dll", "48 89 4C 24 08 55 48 8D AC 24 ?? ?? ?? ?? B8 ?? ?? ?? ?? E8");
+			G::R_DrawDecalsAllAddr = U::Memory.FindSignature("engine.dll", "48 89 4C 24 08 55 48 8D AC 24 40 F0 FF FF B8 C0 10 00 00 E8");
 		if (G::R_DrawDecalsAllAddr)
 			U::Hooks.Initialize("R_DrawDecalsAll");
 
@@ -203,10 +203,11 @@ int CCore::LoadEngine()
 		if (G::SVC_GameEvent_ProcessAddr)
 			U::Hooks.Initialize("SVC_GameEvent_Process");
 
-		if (!G::SVC_Sounds_ProcessAddr)
-			G::SVC_Sounds_ProcessAddr = U::Memory.FindSignature("engine.dll", "48 8B D1 48 8B 49 20 48 8B 01 48 FF A0 78 00 00 00");
-		if (G::SVC_Sounds_ProcessAddr)
-			U::Hooks.Initialize("SVC_Sounds_Process");
+		// temp disabled
+		// if (!G::SVC_Sounds_ProcessAddr)
+		// 	G::SVC_Sounds_ProcessAddr = U::Memory.FindSignature("engine.dll", "48 8B D1 48 8B 49 20 48 8B 01 48 FF A0 78 00 00 00");
+		// if (G::SVC_Sounds_ProcessAddr)
+		// 	U::Hooks.Initialize("SVC_Sounds_Process");
 
 		if (!G::SVC_BSPDecal_ProcessAddr)
 			G::SVC_BSPDecal_ProcessAddr = U::Memory.FindSignature("engine.dll", "48 8B D1 48 8B 49 20 48 8B 01 48 FF A0 98 00 00 00");

@@ -6,7 +6,7 @@ MAKE_HOOK(IMDLCache_GetHardwareData, U::Memory.FindSignature("datacache.dll", "4
 	return CALL_ORIGINAL(rcx, handle);
 }
 
-MAKE_HOOK(IMDLCache_GetVertexData, U::Memory.FindSignature("datacache.dll", "48 83 EC 28 48 8B 05 ? ? ? ? 83 78 58 00"), void*,
+MAKE_HOOK(IMDLCache_GetVertexData, U::Memory.FindSignature("datacache.dll", "48 83 EC ? 48 8B 05 ? ? ? ? 83 78 ? ? 75 ? 48 8B 05 ? ? ? ?"), void*,
 		  void* rcx, MDLHandle_t handle)
 {
 	return CALL_ORIGINAL(rcx, handle);
