@@ -1,0 +1,25 @@
+name: MSBuild
+
+on: [push, pull_request]
+
+jobs:
+  msbuild:
+    runs-on: windows-2025-vs2026
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add MSBuild to PATH
+        uses: microsoft/setup-msbuild@v2
+        with:
+          msbuild-architecture: x64
+
+      - name: Build TextmodeTF2
+        working-directory: ${{ env.GITHUB_WORKSPACE }}
+        run: msbuild TextmodeTF2.sln /m /t:TextmodeTF2 /p:Platform=x64 /p:Configuration=Release
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: TextmodeTF2x64Release
+          path: |
+            output/TextmodeTF2/x64/Release/**
+            !output/TextmodeTF2/x64/Release/*.pdb
