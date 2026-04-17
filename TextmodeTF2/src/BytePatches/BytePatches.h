@@ -21,7 +21,10 @@ public:
 	BytePatch(const char* sModule, uintptr_t uModuleOffset, const char* sPatch);
 
 	bool Initialize();
+	bool Initialize(uintptr_t uModuleBase, uintptr_t uModuleEnd);
 	void Unload();
+
+	const char* GetModule() const { return m_sModule; }
 };
 
 class CBytePatches

@@ -2,6 +2,28 @@
 
 #include "../Core/Core.h"
 #include <Psapi.h>
+#include <string_view>
+
+namespace
+{
+	bool TryGetModuleBounds(const char* sModule, uintptr_t& uModuleBase, uintptr_t& uModuleEnd)
+	{
+		const auto hMod = GetModuleHandleA(sModule);
+		MODULEINFO moduleInfo = {};
+		if (!hMod || !GetModuleInformation(GetCurrentProcess(), hMod, &moduleInfo, sizeof(MODULEINFO)))
+			return false;
+
+		uModuleBase = uintptr_t(hMod);
+		uModuleEnd = uModuleBase + moduleInfo.SizeOfImage;
+		return uModuleEnd >= uModuleBase;
+	}
+
+	void ReportModuleInfoFailure(const char* sModule)
+	{
+		SDK::Output("BytePatches", std::format("Failed to query module info for {}", sModule).c_str());
+		U::Core.AppendFailText(std::format("BytePatch::Initialize() failed module info:\n  {}", sModule).c_str());
+	}
+}
 
 BytePatch::BytePatch(const char* sModule, const char* sSignature, int iOffset, const char* sPatch)
 {
@@ -40,17 +62,24 @@ bool BytePatch::Initialize()
 	if (m_bIsPatched)
 		return true;
 
-	const auto hMod = GetModuleHandleA(m_sModule);
-	MODULEINFO module_info;
-	if (!hMod || !GetModuleInformation(GetCurrentProcess(), hMod, &module_info, sizeof(MODULEINFO)))
+	uintptr_t uModuleBase = 0;
+	uintptr_t uModuleEnd = 0;
+	if (!TryGetModuleBounds(m_sModule, uModuleBase, uModuleEnd))
 	{
-		SDK::Output("BytePatches", std::format("Failed to query module info for {}", m_sModule).c_str());
-		U::Core.AppendFailText(std::format("BytePatch::Initialize() failed module info:\n  {}", m_sModule).c_str());
+		if (U::Core.m_bTimeout)
+			ReportModuleInfoFailure(m_sModule);
+
 		return false;
 	}
 
-	const auto uModuleBase = uintptr_t(hMod);
-	const auto uModuleEnd = uModuleBase + module_info.SizeOfImage;
+	return Initialize(uModuleBase, uModuleEnd);
+}
+
+bool BytePatch::Initialize(uintptr_t uModuleBase, uintptr_t uModuleEnd)
+{
+	if (m_bIsPatched)
+		return true;
+
 	uintptr_t uAddress = 0;
 	if (m_bUseModuleOffset)
 	{
@@ -111,10 +140,34 @@ void BytePatch::Unload()
 
 bool CBytePatches::Initialize(const char* cModule)
 {
+	const auto it = m_mPatches.find(cModule);
+	if (it == m_mPatches.end() || it->second.empty())
+		return true;
+
+	uintptr_t uModuleBase = 0;
+	uintptr_t uModuleEnd = 0;
+	std::string_view sCurrentModule;
 	bool bFail{false};
-	for (auto& patch : m_mPatches[cModule])
-		if (!patch.Initialize())
+
+	for (auto& patch : it->second)
+	{
+		const std::string_view sPatchModule = patch.GetModule();
+		if (sPatchModule != sCurrentModule)
+		{
+			if (!TryGetModuleBounds(patch.GetModule(), uModuleBase, uModuleEnd))
+			{
+				if (U::Core.m_bTimeout)
+					ReportModuleInfoFailure(patch.GetModule());
+
+				return false;
+			}
+
+			sCurrentModule = sPatchModule;
+		}
+
+		if (!patch.Initialize(uModuleBase, uModuleEnd))
 			bFail = true;
+	}
 
 	if (!bFail)
 		SDK::Output("BytePatches", std::format("Successfully initialized all byte patches for {}!", cModule).c_str());
