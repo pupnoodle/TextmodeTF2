@@ -1,5 +1,7 @@
 #include "../SDK/SDK.h"
 
+#include <vector>
+
 MAKE_HOOK(IFileSystem_FindNext, U::Memory.GetVFunc(reinterpret_cast<void*>(G::IFileSystemAddr), 28), const char*,
 		  void* rcx, FileFindHandle_t handle)
 {
@@ -48,5 +50,23 @@ MAKE_HOOK(IFileSystem_ReadFileEx, U::Memory.GetVFunc(reinterpret_cast<void*>(G::
 MAKE_HOOK(IFileSystem_AddFilesToFileCache, U::Memory.GetVFunc(reinterpret_cast<void*>(G::IFileSystemAddr), 103), void,
 		  void* rcx, FileCacheHandle_t cacheId, const char** ppFileNames, int nFileNames, const char* pPathID)
 {
-	return CALL_ORIGINAL(rcx, cacheId, ppFileNames, nFileNames, pPathID);
+	if (!ppFileNames || nFileNames <= 0)
+		return;
+
+	std::vector<const char*> vAllowedFiles{};
+	vAllowedFiles.reserve(nFileNames);
+
+	for (int i = 0; i < nFileNames; i++)
+	{
+		const char* pFileName = ppFileNames[i];
+		if (!pFileName || SDK::BlacklistFile(pFileName))
+			continue;
+
+		vAllowedFiles.push_back(pFileName);
+	}
+
+	if (vAllowedFiles.empty())
+		return;
+
+	return CALL_ORIGINAL(rcx, cacheId, vAllowedFiles.data(), static_cast<int>(vAllowedFiles.size()), pPathID);
 }

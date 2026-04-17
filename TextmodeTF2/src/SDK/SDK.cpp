@@ -124,14 +124,9 @@ bool SDK::BlacklistFile(const char* cFileName)
 		return false;
 	const auto ext = fileName.substr(dot);
 
-	const bool is_props_model{
-		fileName.starts_with("models/props_"sv) || fileName.starts_with("models\\props_"sv)
-	};
 	const bool is_collision_relevant_model_asset{
 		ext == ".mdl"sv || ext == ".phy"sv || ext == ".vvd"sv || ext == ".vtx"sv || ext == ".ani"sv
 	};
-	if (is_props_model && is_collision_relevant_model_asset)
-		return false;
 
 	const bool is_essential_model_asset{
 		fileName.find("player/"sv) != std::string_view::npos ||
