@@ -33,6 +33,8 @@
     <ClCompile Include="src\Hooks\CDebugOverlay_AddBoxOverlay.cpp" />
     <ClCompile Include="src\Hooks\CDebugOverlay_AddLineOverlay.cpp" />
     <ClCompile Include="src\Hooks\CEngineSoundClient_EmitSoundInternal.cpp" />
+    <ClCompile Include="src\Hooks\Client_SafeHandleLookup.cpp" />
+    <ClCompile Include="src\Hooks\Client_SafeMatrixTransform.cpp" />
     <ClCompile Include="src\Hooks\IPanel_PaintTraverse.cpp" />
     <ClCompile Include="src\Hooks\CModelLoader_GetModelForName.cpp" />
     <ClCompile Include="src\Hooks\CModelRender_DrawModelExecute.cpp" />

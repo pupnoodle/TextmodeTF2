@@ -231,6 +231,8 @@
     <ClCompile Include="src\Hooks\CEngineVGui_Paint.cpp" />
     <ClCompile Include="src\Hooks\CEngineClient_Sound_ExtraUpdate.cpp" />
     <ClCompile Include="src\Hooks\CEngineSoundClient_EmitSoundInternal.cpp" />
+    <ClCompile Include="src\Hooks\Client_SafeHandleLookup.cpp" />
+    <ClCompile Include="src\Hooks\Client_SafeMatrixTransform.cpp" />
     <ClCompile Include="src\Hooks\CMumbleSystem_LevelInitPostEntity.cpp" />
     <ClCompile Include="src\Hooks\CMumbleSystem_PostRender.cpp" />
     <ClCompile Include="src\Hooks\C_SoundscapeSystem_Init.cpp" />

@@ -45,5 +45,7 @@ inline uintptr_t SVC_BSPDecal_ProcessAddr{};
 	inline uintptr_t IStudioRender_AddDecalAddr{};
 	inline uintptr_t IStudioRender_AddShadowAddr{};
 	inline uintptr_t IStudioRender_DrawModelArrayAddr{};
+	inline uintptr_t Client_SafeHandleLookupAddr{};
+	inline uintptr_t Client_SafeMatrixTransformAddr{};
 	inline IMDLCache* IMDLCache{};
 };

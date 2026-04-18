@@ -193,16 +193,6 @@ int CCore::LoadEngine()
 		if (G::CShadowMgr_RenderShadowsAddr)
 			U::Hooks.Initialize("CShadowMgr_RenderShadows");
 
-		if (!G::SVC_TempEntities_ProcessAddr)
-			G::SVC_TempEntities_ProcessAddr = U::Memory.FindSignature("engine.dll", "48 8B D1 48 8B 49 20 48 8B 01 48 FF A0 C0 00 00 00");
-		if (G::SVC_TempEntities_ProcessAddr)
-			U::Hooks.Initialize("SVC_TempEntities_Process");
-
-		if (!G::SVC_GameEvent_ProcessAddr)
-			G::SVC_GameEvent_ProcessAddr = U::Memory.FindSignature("engine.dll", "48 8B D1 48 8B 49 20 48 8B 01 48 FF A0 A0 00 00 00");
-		if (G::SVC_GameEvent_ProcessAddr)
-			U::Hooks.Initialize("SVC_GameEvent_Process");
-
 		// temp disabled
 		// if (!G::SVC_Sounds_ProcessAddr)
 		// 	G::SVC_Sounds_ProcessAddr = U::Memory.FindSignature("engine.dll", "48 8B D1 48 8B 49 20 48 8B 01 48 FF A0 78 00 00 00");
@@ -273,6 +263,29 @@ int CCore::LoadMatSys()
 
 int CCore::LoadClient()
 {
+	static bool bClientCrashHooksInit{ false };
+	if (!bClientCrashHooksInit)
+	{
+		if (!G::Client_SafeHandleLookupAddr)
+		{
+			if (const auto hClient = GetModuleHandleA("client.dll"))
+				G::Client_SafeHandleLookupAddr = reinterpret_cast<uintptr_t>(hClient) + 0x57C2C0;
+		}
+
+		if (!G::Client_SafeMatrixTransformAddr)
+			G::Client_SafeMatrixTransformAddr = U::Memory.FindSignature("client.dll", "48 83 EC ? 0F 10 19 0F 10 61 ? 0F 10 6A ? 0F 29 74 24 ? 0F 28 D3 0F 10 72 ?");
+
+		if (G::Client_SafeHandleLookupAddr && G::Client_SafeMatrixTransformAddr)
+		{
+			if (!U::Hooks.Initialize("Client_SafeHandleLookup"))
+				return LOAD_FAIL;
+			if (!U::Hooks.Initialize("Client_SafeMatrixTransform"))
+				return LOAD_FAIL;
+
+			bClientCrashHooksInit = true;
+		}
+	}
+
 	if (!U::BytePatches.Initialize("client"))
 		return LOAD_WAIT;
 
@@ -304,7 +317,7 @@ int CCore::LoadClient()
 	if (G::IPanel_PaintTraverseAddr)
 		U::Hooks.Initialize("IPanel_PaintTraverse");
 
-	return m_bClientLoaded = true;
+	return m_bClientLoaded = bClientCrashHooksInit;
 }
 
 int CCore::LoadGameUI()
@@ -320,27 +333,7 @@ int CCore::LoadGameUI()
 
 int CCore::LoadParticles()
 {
-	if (!G::CParticleSystemMgr_DrawRenderCacheAddr)
-		G::CParticleSystemMgr_DrawRenderCacheAddr = U::Memory.FindSignature("client.dll", "48 8B C4 88 50 10 48 89 48 08 55 57 41 55 41 57 48 8D A8 28 FD FF FF");
-
-	if (!G::CParticleCollection_SimulateAddr)
-		G::CParticleCollection_SimulateAddr = U::Memory.FindSignature("client.dll", "48 8B C4 44 88 40 18 57 41 56 48 81 EC 08 01 00 00");
-
-	if (!G::CParticleSystemMgr_ReadParticleConfigFileAddr)
-		G::CParticleSystemMgr_ReadParticleConfigFileAddr = U::Memory.FindSignature("client.dll", "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 81 EC ?? ?? ?? ?? 80 3A 21 48 8D 7A 01");
-
-	if (G::CParticleSystemMgr_DrawRenderCacheAddr && G::CParticleCollection_SimulateAddr && G::CParticleSystemMgr_ReadParticleConfigFileAddr)
-	{
-		if (!U::Hooks.Initialize("CParticleSystemMgr_DrawRenderCache"))
-			return LOAD_FAIL;
-		if (!U::Hooks.Initialize("CParticleCollection_Simulate"))
-			return LOAD_FAIL;
-		if (!U::Hooks.Initialize("CParticleSystemMgr_ReadParticleConfigFile"))
-			return LOAD_FAIL;
-		m_bParticlesLoaded = true;
-	}
-
-	return m_bParticlesLoaded ? 1 : LOAD_WAIT;
+	return m_bParticlesLoaded = true;
 }
 
 int CCore::LoadMDLCache()
