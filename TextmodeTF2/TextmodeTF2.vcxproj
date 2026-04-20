@@ -84,6 +84,8 @@
     <IntDir>$(SolutionDir)build\$(ProjectName)\$(Platform)\$(Configuration)\</IntDir>
     <TargetName>$(ProjectName)$(Platform)$(Configuration)</TargetName>
     <OutDir>$(SolutionDir)output\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
+    <CompatibilityDeployDir>D:\gitba\Unibox\output\x64\ReleaseTextmode\</CompatibilityDeployDir>
+    <CompatibilityDeployName>Amalgamx64ReleaseTextmode</CompatibilityDeployName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <OutDir>$(SolutionDir)output\$(ProjectName)\$(Platform)\$(Configuration)\</OutDir>
@@ -215,6 +217,11 @@
       <AdditionalLibraryDirectories>
       </AdditionalLibraryDirectories>
     </Link>
+    <PostBuildEvent>
+      <Command>if not exist "$(CompatibilityDeployDir)" mkdir "$(CompatibilityDeployDir)"
+copy /Y "$(TargetPath)" "$(CompatibilityDeployDir)$(CompatibilityDeployName).dll"
+if exist "$(TargetDir)$(TargetName).pdb" copy /Y "$(TargetDir)$(TargetName).pdb" "$(CompatibilityDeployDir)$(CompatibilityDeployName).pdb"</Command>
+    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="include\MinHook\buffer.c" />

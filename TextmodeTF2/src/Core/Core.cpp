@@ -267,10 +267,7 @@ int CCore::LoadClient()
 	if (!bClientCrashHooksInit)
 	{
 		if (!G::Client_SafeHandleLookupAddr)
-		{
-			if (const auto hClient = GetModuleHandleA("client.dll"))
-				G::Client_SafeHandleLookupAddr = reinterpret_cast<uintptr_t>(hClient) + 0x57C2C0;
-		}
+			G::Client_SafeHandleLookupAddr = U::Memory.FindSignature("client.dll", "8B 91 88 0B 00 00 85 D2 74 ? B8 FF 1F 00 00 83 FA FF 74 ? 0F B7 C2 8B C8 48 8B 05 ? ? ? ?");
 
 		if (!G::Client_SafeMatrixTransformAddr)
 			G::Client_SafeMatrixTransformAddr = U::Memory.FindSignature("client.dll", "48 83 EC ? 0F 10 19 0F 10 61 ? 0F 10 6A ? 0F 29 74 24 ? 0F 28 D3 0F 10 72 ?");
